@@ -25,7 +25,7 @@ from langchain_core.prompts import HumanMessagePromptTemplate
 from langchain_core.messages import SystemMessage
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.pydantic_v1 import BaseModel, Field
-from langchain_core.language_models.chat_models import BaseChatModel
+from langchain_core.language_models import BaseLanguageModel
 from langchain_core.tracers.context import tracing_v2_enabled
 
 import logging
@@ -91,7 +91,7 @@ class Interactigen:
 
     def __init__(self,
                  *,
-                 model: BaseChatModel,
+                 model: BaseLanguageModel,
                  ):
         """
         Create a new instance.
