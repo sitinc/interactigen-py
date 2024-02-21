@@ -33,24 +33,27 @@ import logging
 # Initialize the logger.
 log = logging.getLogger('interactigenLogger')
 
-sys_prompt = """You are a helpful assistant that generates high-quality training data for use with voice and chat 
-bots."""
+# The common system prompt heading.
+sys_prompt = "You are a helpful assistant that generates high-quality training data for use with voice and text bots."
 
 
-# Define Generate Phrase Utterances Response and Parser
+# Define Generate Phrase Utterances Response Format and Parser
 class PhraseUtterances(BaseModel):
     utterances: list[str] = Field(description="The array of generated utterances.", examples=["Hello", "Hi", "Hey"])
 
 
 gen_phrase_parser = JsonOutputParser(pydantic_object=PhraseUtterances)
 
-gen_phrase_base_prompt = ChatPromptTemplate.from_messages(
+
+# Define the initial prompt for generating base utterances.
+gen_phrase_init_prompt = ChatPromptTemplate.from_messages(
     [
         SystemMessage(content=(sys_prompt+'\n\n'+gen_phrase_parser.get_format_instructions())),
         HumanMessagePromptTemplate.from_template("Please generate {quantity} semantically diverse ways {base_phrase}."),
     ]
 )
 
+# Define the transform prompt to apply to base utterances.
 gen_phrase_transform_prompt = ChatPromptTemplate.from_messages(
     [
         SystemMessage(content=(sys_prompt+'\n\n'+gen_phrase_parser.get_format_instructions())),
@@ -58,6 +61,27 @@ gen_phrase_transform_prompt = ChatPromptTemplate.from_messages(
                                                  "these examples, but {transform_phrase}"),
     ]
 )
+
+# Apply these to the initially generated utterances to form the base utterances for each downstream transform.
+transform_phrases_base = [
+    'sound more casual and use half the words',
+    'use one to three words',
+]
+# Apply these to all base utterances regardless of media type.
+transform_phrases_all = [
+    'flip bigrams or trigrams',
+    'swap common synonyms',
+]
+# Apply these to all voice media type utterances.
+transform_phrases_voice = [
+    'introduce common speech recognition mistranslations',
+    'introduce common audio loss mistranslations',
+]
+# Apply these to all text media type utterances.
+transform_phrases_text = [
+    'introduce common spelling mistakes',
+    'introduce common emojis',
+]
 
 
 class Interactigen:
@@ -69,6 +93,10 @@ class Interactigen:
                  *,
                  model: BaseChatModel,
                  ):
+        """
+        Create a new instance.
+        :param model: The LangChain base chat model.
+        """
         self.model = model
 
     def generate_phrase_init_utterances(self,
@@ -76,7 +104,14 @@ class Interactigen:
                                         base_phrase: str,
                                         quantity: int,
                                         **kwargs) -> list[str]:
-        base_chain = gen_phrase_base_prompt | self.model | gen_phrase_parser
+        """
+        Generate a list of semantically diverse utterances from a base phrase.
+        :param base_phrase: The base phrase.
+        :param quantity: The quantity of semantically diverse utterances.
+        :param kwargs: Additional parameters to pass into the LangChain chat model.
+        :return: an array of semantically diverse utterances.
+        """
+        base_chain = gen_phrase_init_prompt | self.model | gen_phrase_parser
 
         base_chain_result = base_chain.invoke({
             "sys_prompt": sys_prompt,
@@ -86,11 +121,18 @@ class Interactigen:
         })
         return base_chain_result['utterances']
 
-    def generate_phrase_transform_utterances(self,
-                                             *,
-                                             utterances: list[str],
-                                             transform_phrase: str,
-                                             **kwargs) -> list[str]:
+    def generate_phrase_transforms(self,
+                                   *,
+                                   utterances: list[str],
+                                   transform_phrase: str,
+                                   **kwargs) -> list[str]:
+        """
+        Generate a list of transformed utterances from an input source and transformation instruction.
+        :param utterances: The utterances to transform.
+        :param transform_phrase: The transformation instruction phrase.
+        :param kwargs: Additional parameters to pass into the LangChain chat model.
+        :return: an array of transformed utterances.
+        """
         transform_chain = gen_phrase_transform_prompt | self.model | gen_phrase_parser
 
         transform_chain_result = transform_chain.invoke({
@@ -101,17 +143,19 @@ class Interactigen:
         })
         return transform_chain_result['utterances']
 
-    def generate_phrase_transform_all(self,
-                                      *,
-                                      utterances: list[str],
-                                      **kwargs) -> list[str]:
-        all_transforms = [
-            'flip bigrams or trigrams',
-            'swap common synonyms',
-        ]
+    def generate_phrase_transforms_all(self,
+                                       *,
+                                       utterances: list[str],
+                                       **kwargs) -> list[str]:
+        """
+        Generate a list of transformed utterances based on rules to apply to all media types.
+        :param utterances: The utterances to transform.
+        :param kwargs: Additional parameters to pass into the LangChain chat model.
+        :return: an array of transformed utterances.
+        """
         all_transforms_result = [
-            result for in_entry in all_transforms
-            for result in self.generate_phrase_transform_utterances(
+            result for in_entry in transform_phrases_all
+            for result in self.generate_phrase_transforms(
                 utterances=utterances,
                 transform_phrase=in_entry,
                 **kwargs,
@@ -119,17 +163,19 @@ class Interactigen:
 
         return all_transforms_result
 
-    def generate_phrase_transform_voice(self,
-                                        *,
-                                        utterances: list[str],
-                                        **kwargs) -> list[str]:
-        voice_transforms = [
-            'introduce common speech recognition mistranslations',
-            'introduce common audio loss mistranslations',
-        ]
+    def generate_phrase_transforms_voice(self,
+                                         *,
+                                         utterances: list[str],
+                                         **kwargs) -> list[str]:
+        """
+        Generate a list of transformed utterances based on rules to apply to voice-only media types.
+        :param utterances: The utterances to transform.
+        :param kwargs: Additional parameters to pass into the LangChain chat model.
+        :return: an array of transformed utterances.
+        """
         voice_transforms_result = [
-            result for in_entry in voice_transforms
-            for result in self.generate_phrase_transform_utterances(
+            result for in_entry in transform_phrases_voice
+            for result in self.generate_phrase_transforms(
                 utterances=utterances,
                 transform_phrase=in_entry,
                 **kwargs,
@@ -137,17 +183,19 @@ class Interactigen:
 
         return voice_transforms_result
 
-    def generate_phrase_transform_chat(self,
-                                       *,
-                                       utterances: list[str],
-                                       **kwargs) -> list[str]:
-        chat_transforms = [
-            'introduce common spelling mistakes',
-            'introduce common emojis',
-        ]
+    def generate_phrase_transforms_text(self,
+                                        *,
+                                        utterances: list[str],
+                                        **kwargs) -> list[str]:
+        """
+        Generate a list of transformed utterances based on rules to apply to text-only media types.
+        :param utterances: The utterances to transform.
+        :param kwargs: Additional parameters to pass into the LangChain chat model.
+        :return: an array of transformed utterances.
+        """
         chat_transforms_result = [
-            result for in_entry in chat_transforms
-            for result in self.generate_phrase_transform_utterances(
+            result for in_entry in transform_phrases_text
+            for result in self.generate_phrase_transforms(
                 utterances=utterances,
                 transform_phrase=in_entry,
                 **kwargs,
@@ -158,17 +206,20 @@ class Interactigen:
     def generate_phrase_base_utterances(self,
                                         *,
                                         base_phrase: str,
-                                        quantity: int,
+                                        init_quantity: int,
                                         **kwargs) -> list[str]:
-        init_utterances = self.generate_phrase_init_utterances(base_phrase=base_phrase, quantity=quantity)
+        """
+        Generate a list of base + augmented semantically diverse utterances from a base phrase.
+        :param base_phrase: The base phrase.
+        :param init_quantity: The initial quantity of semantically diverse utterances before any transformations.
+        :param kwargs: Additional parameters to pass into the LangChain chat model.
+        :return: an array of semantically diverse utterances.
+        """
+        init_utterances = self.generate_phrase_init_utterances(base_phrase=base_phrase, quantity=init_quantity)
 
-        base_transforms = [
-            'sound more casual and use half the words',
-            'use one to three words',
-        ]
         transformed_utterances = [
-            result for in_entry in base_transforms
-            for result in self.generate_phrase_transform_utterances(
+            result for in_entry in transform_phrases_base
+            for result in self.generate_phrase_transforms(
                 utterances=init_utterances,
                 transform_phrase=in_entry,
                 **kwargs,
@@ -179,23 +230,36 @@ class Interactigen:
     def generate_phrase_utterances(self,
                                    *,
                                    base_phrase: str,
-                                   base_quantity: int = 10,
+                                   init_quantity: int = 10,
                                    media_type: str = 'voice',
                                    lc_project: str = None,
                                    **kwargs) -> list[str]:
+        """
+        Generate a fully augmented list of semantically diverse utterances from a base phrase.
+        :param base_phrase: The base phrase.
+        :param init_quantity: The initial quantity of semantically diverse utterances before any transformations.
+        :param media_type: The intended media type for the phrases.  Default is 'voice'.
+        :param lc_project: The LangChain project used for LangSmith tracing.  Default is None (Default in LangSmith).
+        :param kwargs: Additional parameters to pass into the LangChain chat model.
+        :return: an array of semantically diverse utterances.
+        """
         with tracing_v2_enabled(lc_project):
             final_utterances: list[str] = []
-            base_utterances = self.generate_phrase_base_utterances(base_phrase=base_phrase, quantity=base_quantity)
+            base_utterances = self.generate_phrase_base_utterances(
+                base_phrase=base_phrase,
+                init_quantity=init_quantity,
+                **kwargs,
+            )
             final_utterances = final_utterances+base_utterances
 
-            all_transform_utterances = self.generate_phrase_transform_all(utterances=base_utterances)
+            all_transform_utterances = self.generate_phrase_transforms_all(utterances=base_utterances, **kwargs)
             final_utterances = final_utterances+all_transform_utterances
 
             if media_type == 'voice':
-                voice_transform_utterances = self.generate_phrase_transform_voice(utterances=base_utterances)
+                voice_transform_utterances = self.generate_phrase_transforms_voice(utterances=base_utterances, **kwargs)
                 final_utterances = final_utterances+voice_transform_utterances
-            else:
-                chat_transform_utterances = self.generate_phrase_transform_chat(utterances=base_utterances)
+            else:  # media_type == 'text'
+                chat_transform_utterances = self.generate_phrase_transforms_text(utterances=base_utterances, **kwargs)
                 final_utterances = final_utterances+chat_transform_utterances
 
             return final_utterances
