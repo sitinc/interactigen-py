@@ -26,6 +26,8 @@ from langchain_core.messages import SystemMessage
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_core.language_models import BaseLanguageModel
+from langchain_core.language_models.chat_models import BaseChatModel
+from langchain_core.language_models.llms import BaseLLM
 from langchain_core.tracers.context import tracing_v2_enabled
 
 import logging
@@ -98,6 +100,23 @@ class Interactigen:
         :param model: The LangChain base chat model.
         """
         self.model = model
+        self.type = 'chat' if isinstance(model, BaseChatModel) else ('llm' if isinstance(model, BaseLLM) else None)
+        if self.type is None:
+            raise Exception('Unknown LangChain model type')
+
+    def __str__(self):
+        """
+        Return a human-readable string.
+        :return: a human-readable string.
+        """
+        return f"Interactigen(source={self.type})"
+
+    def __repr__(self):
+        """
+        Return a human-readable string.
+        :return: a human-readable string.
+        """
+        return f"Interactigen(source={self.type!r})"
 
     def generate_phrase_init_utterances(self,
                                         *,
