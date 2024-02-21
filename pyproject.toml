@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "interactigen"
+version = "0.0.1"
+description = "Python module for interactional generation."
+authors = ["Justin Randall <justin@sitinc.net>"]
+license = "MIT"
+
+# Define the URLs associated with your package
+repository = "https://github.com/sitinc/interactigen-py"
+homepage = "https://github.com/sitinc/interactigen-py"
+documentation = "https://github.com/sitinc/interactigen-py"
+
+[tool.poetry.dependencies]
+python = ">=3.9,<3.12"
+
+# Dependencies of your project
+langchain-core = "^0.1.25"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.4.4"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
