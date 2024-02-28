@@ -24,6 +24,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.prompts import HumanMessagePromptTemplate
 from langchain_core.messages import SystemMessage
 from langchain_core.output_parsers import JsonOutputParser
+# from langchain.output_parsers import YamlOutputParser
 from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_core.language_models import BaseLanguageModel
 from langchain_core.language_models.chat_models import BaseChatModel
@@ -45,7 +46,7 @@ class PhraseUtterances(BaseModel):
 
 
 gen_phrase_parser = JsonOutputParser(pydantic_object=PhraseUtterances)
-
+# gen_phrase_parser = YamlOutputParser(pydantic_object=PhraseUtterances)
 
 # Define the initial prompt for generating base utterances.
 gen_phrase_init_prompt = ChatPromptTemplate.from_messages(
@@ -139,6 +140,7 @@ class Interactigen:
             **kwargs,
         })
         return base_chain_result['utterances']
+        # return base_chain_result.utterances
 
     def generate_phrase_transforms(self,
                                    *,
@@ -161,6 +163,7 @@ class Interactigen:
             **kwargs,
         })
         return transform_chain_result['utterances']
+        # return transform_chain_result.utterances
 
     def generate_phrase_transforms_all(self,
                                        *,
