@@ -23,18 +23,68 @@
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.prompts import HumanMessagePromptTemplate
 from langchain_core.messages import SystemMessage
-from langchain_core.output_parsers import JsonOutputParser
-# from langchain.output_parsers import YamlOutputParser
 from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_core.language_models import BaseLanguageModel
+from langchain_core.exceptions import OutputParserException
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.language_models.llms import BaseLLM
 from langchain_core.tracers.context import tracing_v2_enabled
 
+from .brokenjsonparser import BrokenJsonOutputParser
+
+import random
+import time
 import logging
 
 # Initialize the logger.
 log = logging.getLogger('interactigenLogger')
+
+
+def retry_with_exponential_backoff(
+        func,
+        initial_delay: float = 1,
+        exponential_base: float = 2,
+        jitter: bool = True,
+        max_retries: int = 3,
+        errors: tuple = (OutputParserException,),
+):
+    """Retry a function with exponential backoff."""
+
+    def wrapper(*args, **kwargs):
+        # Initialize variables
+        num_retries = 0
+        delay = initial_delay
+
+        # Loop until a successful response or max_retries is hit or an exception is raised
+        while True:
+            try:
+                return func(*args, **kwargs)
+
+            # Retry on specific errors
+            except errors as e:
+                log.error(f"Caught exception: {e}")
+
+                # Increment retries
+                num_retries += 1
+
+                # Check if max retries has been reached
+                if num_retries > max_retries:
+                    raise Exception(
+                        f"Maximum number of retries ({max_retries}) exceeded."
+                    )
+
+                # Increment the delay
+                delay *= exponential_base * (1 + jitter * random.random())
+
+                # Sleep for the delay
+                time.sleep(delay)
+
+            # Raise exceptions for any errors not specified
+            except Exception as e:
+                raise e
+
+    return wrapper
+
 
 # The common system prompt heading.
 sys_prompt = "You are a helpful assistant that generates high-quality training data for use with voice and text bots."
@@ -45,8 +95,7 @@ class PhraseUtterances(BaseModel):
     utterances: list[str] = Field(description="The array of generated utterances.", examples=["Hello", "Hi", "Hey"])
 
 
-gen_phrase_parser = JsonOutputParser(pydantic_object=PhraseUtterances)
-# gen_phrase_parser = YamlOutputParser(pydantic_object=PhraseUtterances)
+gen_phrase_parser = BrokenJsonOutputParser(pydantic_object=PhraseUtterances)
 
 # Define the initial prompt for generating base utterances.
 gen_phrase_init_prompt = ChatPromptTemplate.from_messages(
@@ -119,6 +168,7 @@ class Interactigen:
         """
         return f"Interactigen(source={self.type!r})"
 
+    @retry_with_exponential_backoff
     def generate_phrase_init_utterances(self,
                                         *,
                                         base_phrase: str,
@@ -140,8 +190,8 @@ class Interactigen:
             **kwargs,
         })
         return base_chain_result['utterances']
-        # return base_chain_result.utterances
 
+    @retry_with_exponential_backoff
     def generate_phrase_transforms(self,
                                    *,
                                    utterances: list[str],
@@ -163,7 +213,6 @@ class Interactigen:
             **kwargs,
         })
         return transform_chain_result['utterances']
-        # return transform_chain_result.utterances
 
     def generate_phrase_transforms_all(self,
                                        *,
