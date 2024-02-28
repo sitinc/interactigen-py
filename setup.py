@@ -35,6 +35,7 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
     ],
 
     # This is a dictionary of additional data files that you want to include in your package.
@@ -54,7 +55,6 @@ setup(
     # for this one to be installed or used. This can be used to specify dependencies that are not
     # in the Python standard library or available on PyPI.
     extras_require={
-        'dev': ['check-manifest'],
-        'test': ['coverage'],
+        'dev': ['pytest>=8.0.2', 'pytest-cov>=4.1.0'],
     },
 )
