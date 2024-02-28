@@ -1,3 +1,5 @@
+# Adapted from https://github.com/langchain-ai/langchain/blob/master/libs/core/langchain_core/output_parsers/json.py
+# MIT License
 from __future__ import annotations
 
 import json
