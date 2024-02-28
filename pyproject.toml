@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "interactigen"
-version = "0.0.1"
+version = "0.0.2"
 description = "Python module for interactional generation."
 authors = ["Justin Randall <justin@sitinc.net>"]
 license = "MIT"
