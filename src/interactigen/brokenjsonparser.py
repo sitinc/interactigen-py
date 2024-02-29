@@ -46,6 +46,15 @@ def _custom_parser(multiline_string: str) -> str:
     return multiline_string
 
 
+def fix_single_quote_strings(multiline_string: str) -> str:
+    new_str = multiline_string
+
+    # Handle fixing bounded single-quote strings for arrays.
+    new_str = re.sub(r"([\[,\s])'(.*?)'([],\s])", r'\1"\2"\3', new_str)
+
+    return new_str
+
+
 # Adapted from https://github.com/KillianLucas/open-interpreter/blob/5b6080fae1f8c68938a1e4fa8667e3744084ee21/interpreter/utils/parse_partial_json.py
 # MIT License
 def parse_partial_json(s: str, *, strict: bool = False) -> Any:
@@ -58,15 +67,12 @@ def parse_partial_json(s: str, *, strict: bool = False) -> Any:
     Returns:
         The parsed JSON object as a Python dictionary.
     """
-    # Attempt to parse the string as-is.
-    new_str = s
-    new_str = re.sub(r"', ", r'", ', new_str)
-    new_str = re.sub(r", '", r', "', new_str)
-    new_str = re.sub(r"\['", r'["', new_str)
-    new_str = re.sub(r"']", r'"]', new_str)
+    # jrandall - Fix single-quote JSON issue in some model responses.
+    s = fix_single_quote_strings(s)
 
+    # Attempt to parse the string as-is.
     try:
-        return json.loads(new_str, strict=strict)
+        return json.loads(s, strict=strict)
     except json.JSONDecodeError:
         pass
 
@@ -130,8 +136,7 @@ def parse_partial_json(s: str, *, strict: bool = False) -> Any:
     # If we got here, we ran out of characters to remove
     # and still couldn't parse the string as JSON, so return the parse error
     # for the original string.
-    return json.loads(new_str, strict=strict)
-    # return json.loads(s, strict=strict)
+    return json.loads(s, strict=strict)
 
 
 def parse_json_markdown(
