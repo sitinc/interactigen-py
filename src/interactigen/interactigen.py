@@ -127,7 +127,7 @@ transform_phrases_all = [
 # Apply these to all voice media type utterances.
 transform_phrases_voice = [
     'introduce common speech recognition mistranslations',
-    'introduce common audio loss mistranslations',
+    # 'introduce common audio loss mistranslations',
 ]
 # Apply these to all text media type utterances.
 transform_phrases_text = [
