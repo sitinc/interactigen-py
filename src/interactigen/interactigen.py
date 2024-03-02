@@ -333,4 +333,8 @@ class Interactigen:
                 chat_transform_utterances = self.generate_phrase_transforms_text(utterances=base_utterances, **kwargs)
                 final_utterances = final_utterances+chat_transform_utterances
 
-            return final_utterances
+            # dedup
+            seen = set()
+            unique_utterances = [x for x in final_utterances if not (x in seen or seen.add(x))]
+
+            return unique_utterances
