@@ -18,10 +18,11 @@ setup(
     keywords="nlp nlu llm transcripts intents utterances",
 
     # Lock down Python version.
-    python_requires='>=3.9, <3.12',
+    python_requires='>=3.11, <3.13',
 
     # List of dependencies:
     install_requires=[
+        "interacticore",
         "langchain_core",
     ],
 
@@ -32,8 +33,6 @@ setup(
         "Intended Audience :: Developers",
         "Topic :: Software Development :: Libraries",
         "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
     ],
@@ -55,6 +54,6 @@ setup(
     # for this one to be installed or used. This can be used to specify dependencies that are not
     # in the Python standard library or available on PyPI.
     extras_require={
-        'dev': ['pytest>=8.0.2', 'pytest-cov>=4.1.0'],
+        'dev': ['pytest>=8.1.1', 'pytest-cov>=4.1.0'],
     },
 )

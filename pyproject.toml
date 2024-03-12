@@ -11,13 +11,14 @@ homepage = "https://github.com/sitinc/interactigen-py"
 documentation = "https://github.com/sitinc/interactigen-py"
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.13"
+python = ">=3.11,<3.13"
 
 # Dependencies of your project
-langchain-core = "^0.1.25"
+langchain-core = "^0.1.30"
+interacticore = "^0.0.3"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.0.2"
+pytest = "^8.1.1"
 pytest-cov = "^4.1.0"
 
 [build-system]

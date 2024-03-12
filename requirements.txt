@@ -1,1 +1,2 @@
+interacticore
 langchain_core
