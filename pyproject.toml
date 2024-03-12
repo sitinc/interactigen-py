@@ -14,8 +14,8 @@ documentation = "https://github.com/sitinc/interactigen-py"
 python = ">=3.11,<3.13"
 
 # Dependencies of your project
-langchain-core = "^0.1.30"
-interacticore = "^0.0.3"
+langchain-core = "^0.1.31"
+interacticore = "^0.0.4"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.1.1"

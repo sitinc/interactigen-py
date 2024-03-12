@@ -240,13 +240,13 @@ files = [
 
 [[package]]
 name = "interacticore"
-version = "0.0.3"
+version = "0.0.4"
 description = "Python module for simplifying common patterns and class for interactgen-py, interactovery-py, and interactilogue-py modules."
 optional = false
 python-versions = ">=3.11,<3.13"
 files = [
-    {file = "interacticore-0.0.3-py3-none-any.whl", hash = "sha256:ab19bac765535ffbcec413fc51cea8bde7539503f844f62a614a7c996ef48160"},
-    {file = "interacticore-0.0.3.tar.gz", hash = "sha256:ed2d298217fbea6d63ff1b4e26e933eba9d88c22d08d4f1be8f9fbdcf6914466"},
+    {file = "interacticore-0.0.4-py3-none-any.whl", hash = "sha256:51998376b569917a14709ca5d66d553cde84d1cd8398cfe9f7568e5161e70d31"},
+    {file = "interacticore-0.0.4.tar.gz", hash = "sha256:8d12d6e666e76fce3e6b8e0cd2395e7a466d1e4aa34ecad5c572c912e32b542d"},
 ]
 
 [package.dependencies]
@@ -279,13 +279,13 @@ files = [
 
 [[package]]
 name = "langchain-core"
-version = "0.1.30"
+version = "0.1.31"
 description = "Building applications with LLMs through composability"
 optional = false
 python-versions = ">=3.8.1,<4.0"
 files = [
-    {file = "langchain_core-0.1.30-py3-none-any.whl", hash = "sha256:c9643505e41d25ba8f20a2e8bf083d0f0d50b9a098d901511fff8df79f831ada"},
-    {file = "langchain_core-0.1.30.tar.gz", hash = "sha256:e13a016e55e7f082ff3eeeda2d0cb505b89a8830e3a23c1d134d0a89d7871894"},
+    {file = "langchain_core-0.1.31-py3-none-any.whl", hash = "sha256:ff028f00db8ff03565b542cea81be27426022a72c6545b54d8de66fa00948ab3"},
+    {file = "langchain_core-0.1.31.tar.gz", hash = "sha256:d660cf209bb6ce61cb1c853107b091aaa809015a55dce9e0ce19b51d4c8f2a70"},
 ]
 
 [package.dependencies]
@@ -687,4 +687,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.13"
-content-hash = "629c2a225776c2c9ae29a7dac058c405cc17d4b08c7124fca468510c68c5eb03"
+content-hash = "c4b7c7f399b0766840e8a44b05dccb9ee6696195570ad256f26713d24815f5ad"
