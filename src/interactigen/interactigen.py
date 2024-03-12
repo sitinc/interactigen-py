@@ -204,7 +204,11 @@ class Interactigen:
         :param kwargs: Additional parameters for underlying models, endpoints, and frameworks.
         :return: an array of semantically diverse utterances.
         """
-        init_utterances = self.generate_phrase_init_utterances(base_phrase=base_phrase, quantity=init_quantity)
+        init_utterances = self.generate_phrase_init_utterances(
+            base_phrase=base_phrase,
+            quantity=init_quantity,
+            **kwargs,
+        )
 
         transformed_utterances = [
             result for in_entry in transform_phrases_base
