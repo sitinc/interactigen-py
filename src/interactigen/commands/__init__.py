@@ -20,6 +20,5 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from .interactigen import Interactigen
-from .commons import PhraseUtterances
-from .commands import *
+from .gen_new_phrasings import GenNewPhrasings
+from .gen_transformed_phrasings import GenTransformedPhrasings

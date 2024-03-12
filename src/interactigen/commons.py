@@ -20,6 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from .interactigen import Interactigen
-from .commons import PhraseUtterances
-from .commands import *
+from langchain_core.pydantic_v1 import BaseModel, Field
+
+
+# Define Generate Phrase Utterances Response Format and Parser
+class PhraseUtterances(BaseModel):
+    utterances: list[str] = Field(description="The array of generated utterances.", examples=["Hello", "Hi", "Hey"])
