@@ -17,7 +17,7 @@ pip install interactigen
 
 **poetry**:
 ```bash
-poetry add interacticore
+poetry add interactigen
 ```
 
 ## Usage
